@@ -1,5 +1,2 @@
-'use strict';
-
-var { NativeModules } = require('react-native');
-
-module.exports = NativeModules.SpeechAndroid;
+import SpeechAndroid from "./index"
+export default SpeechAndroid
