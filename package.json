@@ -1,0 +1,26 @@
+{
+  "name": "react-native-background-speech", 
+  "version": "0.1.1", 
+  "description": "React Native Speech Recognition Module for Android", 
+  "main": "index.js", 
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start"
+  } , 
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alzmob/react-native-background-speech.git"
+  } , 
+  "keywords": [
+    "react-component", 
+    "ios",
+    "Android"
+  ] , 
+  "author": "alzmob", 
+  "license": "MIT", 
+  "dependencies": {
+    
+  } , 
+  "devDependencies": {
+    "react-native": ">=0.40.0"
+  }
+}
