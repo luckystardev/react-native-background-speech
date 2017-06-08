@@ -122,7 +122,7 @@ RCT_EXPORT_METHOD(startSpeech) {
             NSLog(@"RESULT:%@",result.bestTranscription.formattedString);
             isFinal = !result.isFinal;
             NSString *spokenText = [result.bestTranscription.formattedString lowercaseString];
-            if ([spokenText containsString:@"next"]) {
+            if ([spokenText containsString:@"next"] || [spokenText containsString:@"xt"] || [spokenText containsString:@"st"]) {
                 spokenText = @"next";
                 [self stopSpeech:spokenText];
             } else if ([spokenText containsString:@"back"]) {
@@ -151,6 +151,7 @@ RCT_EXPORT_METHOD(startSpeech) {
         }
         if (error) {
             [audioEngine stop];
+            [recognitionRequest endAudio];
             [inputNode removeTapOnBus:0];
             recognitionRequest = nil;
             recognitionTask = nil;
