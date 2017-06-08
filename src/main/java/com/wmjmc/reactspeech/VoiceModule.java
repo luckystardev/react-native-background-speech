@@ -67,6 +67,10 @@ public class VoiceModule extends ReactContextBaseJavaModule {
         public void onError(int errorCode) {
             String errorMessage = getErrorText(errorCode);
             Log.d(LOG_TAG, "FAILED " + errorMessage);
+            if (errorMessage.equals("No match") || errorMessage.equals("No speech input")) {
+                speech.stopListening();
+                speech.startListening(intent);
+            }
         }
 
         @Override
@@ -92,7 +96,27 @@ public class VoiceModule extends ReactContextBaseJavaModule {
             for (String result : matches)
                 text += result + "\n";
             Log.d(LOG_TAG, text);
-            mVoicepromise.resolve(matches.get(0));
+            if (matches.contains("next")) {
+                mVoicepromise.resolve("next");
+            } else if (matches.contains("back")) {
+                mVoicepromise.resolve("back");
+            } else if (matches.contains("yes")) {
+                mVoicepromise.resolve("yes");
+            } else if (matches.contains("no")) {
+                mVoicepromise.resolve("no");
+            } else if (matches.contains("start")) {
+                mVoicepromise.resolve("start");
+            } else if (matches.contains("restart")) {
+                mVoicepromise.resolve("restart");
+            } else if (matches.contains("repeat")) {
+                mVoicepromise.resolve("repeat");
+            } else if (matches.contains("stop")) {
+                mVoicepromise.resolve("stop");
+            } else {
+//                mVoicepromise.resolve(matches.get(0));
+                speech.stopListening();
+                speech.startListening(intent);
+            }
         }
 
         @Override
@@ -163,68 +187,5 @@ public class VoiceModule extends ReactContextBaseJavaModule {
         }
         return message;
     }
-/*
-    @Override
-    public void onActivityResult(
-        Activity activity,
-        int requestCode,
-        int resultCode,
-        Intent data
-    ) {
-        this.onActivityResult(requestCode, resultCode, data);
-    }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (mVoicepromise == null) {
-            return;
-        }
-
-        switch (resultCode){
-            case Activity.RESULT_OK:
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                mVoicepromise.resolve(result.get(0));
-                mVoicepromise = null;
-                break;
-            case Activity.RESULT_CANCELED:
-                mVoicepromise.reject(ErrorConstants.E_VOICE_CANCELLED);
-                mVoicepromise = null;
-                break;
-            case RecognizerIntent.RESULT_AUDIO_ERROR:
-                mVoicepromise.reject(ErrorConstants.E_AUDIO_ERROR);
-                mVoicepromise = null;
-                break;
-            case RecognizerIntent.RESULT_NETWORK_ERROR:
-                mVoicepromise.reject(ErrorConstants.E_NETWORK_ERROR);
-                mVoicepromise = null;
-                break;
-            case RecognizerIntent.RESULT_NO_MATCH:
-                mVoicepromise.reject(ErrorConstants.E_NO_MATCH);
-                mVoicepromise = null;
-                break;
-            case RecognizerIntent.RESULT_SERVER_ERROR:
-                mVoicepromise.reject(ErrorConstants.E_SERVER_ERROR);
-                mVoicepromise = null;
-                break;
-        }
-    }
-
-    public void onNewIntent(Intent intent) {
-        // no-op
-    }
-
-    private String getPrompt(String prompt){
-        if(prompt != null && !prompt.equals("")){
-            return prompt;
-        }
-
-        return "Say something";
-    }
-
-    private String getLocale(String locale){
-        if(locale != null && !locale.equals("")){
-            return locale;
-        }
-
-        return Locale.getDefault().toString();
-    } */
 }

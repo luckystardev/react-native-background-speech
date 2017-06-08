@@ -16,6 +16,7 @@
     SFSpeechAudioBufferRecognitionRequest *recognitionRequest;
     SFSpeechRecognitionTask *recognitionTask;
     AVAudioEngine *audioEngine;
+    bool isResult;
 }
 
 @property (nonatomic, weak, readwrite) RCTBridge *bridge;
@@ -27,6 +28,7 @@
 RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(startSpeech) {
+    isResult = false;
     [self callSpeech];
 }
 
@@ -77,7 +79,7 @@ RCT_EXPORT_METHOD(startSpeech) {
     // Starts an AVAudio Session
     NSError *error;
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    [audioSession setCategory:AVAudioSessionCategoryRecord error:&error];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker error:&error];
     if (error != nil) {
         return;
     }
@@ -85,7 +87,7 @@ RCT_EXPORT_METHOD(startSpeech) {
     if (error != nil) {
         return;
     }
-    [audioSession setActive:YES withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error];
+    [audioSession setActive:YES error:&error];
     if (error != nil) {
         return;
     }
@@ -115,6 +117,8 @@ RCT_EXPORT_METHOD(startSpeech) {
         if (result) {
             // Whatever you say in the microphone after pressing the button should be being logged
             // in the console.
+            [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
+            
             NSLog(@"RESULT:%@",result.bestTranscription.formattedString);
             isFinal = !result.isFinal;
             NSString *spokenText = [result.bestTranscription.formattedString lowercaseString];
@@ -175,8 +179,12 @@ RCT_EXPORT_METHOD(startSpeech) {
 -(void)stopSpeech:(NSString *)txt {
     [audioEngine stop];
     [recognitionRequest endAudio];
-
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNSpeech" body:txt];
+    recognitionRequest = nil;
+    recognitionTask = nil;
+    if (!isResult) {
+        isResult = true;
+        [self.bridge.eventDispatcher sendAppEventWithName:@"RNSpeech" body:txt];
+    }
 }
 
 #pragma mark - SFSpeechRecognizerDelegate Delegate Methods
