@@ -153,6 +153,8 @@ RCT_EXPORT_METHOD(startSpeech) {
                 [self stopSpeech:spokenText];
             } else {
                 NSLog(@"---Not matched word--");
+                spokenText = @"nomatch";
+                [self stopSpeech:spokenText];
             }
             [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
         }
