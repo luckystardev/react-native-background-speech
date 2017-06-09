@@ -144,7 +144,7 @@ public class VoiceModule extends ReactContextBaseJavaModule {
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,"en");
                 intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,reactContext.getPackageName());
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
-                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2000);
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000);
                 intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 2);
                 speech.startListening(intent);
             }

@@ -8,8 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 #import <Speech/Speech.h>
 
-@interface RNSpeech : NSObject <RCTBridgeModule, SFSpeechRecognizerDelegate>
+@interface RNSpeech : RCTEventEmitter <RCTBridgeModule, SFSpeechRecognizerDelegate>
 
 @end

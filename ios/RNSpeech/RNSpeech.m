@@ -27,8 +27,13 @@
 
 RCT_EXPORT_MODULE()
 
+- (NSArray<NSString *> *)supportedEvents
+{
+    return @[@"RNSpeech"];
+}
+
+
 RCT_EXPORT_METHOD(startSpeech) {
-    isResult = false;
     [self callSpeech];
 }
 
@@ -55,7 +60,6 @@ RCT_EXPORT_METHOD(startSpeech) {
                 break;
         }
     }];
-    
     if (audioEngine.isRunning) {
         [audioEngine stop];
         [recognitionRequest endAudio];
@@ -66,10 +70,10 @@ RCT_EXPORT_METHOD(startSpeech) {
 }
 
 - (void)startListening {
+    isResult = false;
     
     // Initialize the AVAudioEngine
     audioEngine = [[AVAudioEngine alloc] init];
-    
     // Make sure there's not a recognition task already running
     if (recognitionTask) {
         [recognitionTask cancel];
@@ -87,6 +91,7 @@ RCT_EXPORT_METHOD(startSpeech) {
     if (error != nil) {
         return;
     }
+    
     [audioSession setActive:YES error:&error];
     if (error != nil) {
         return;
@@ -107,6 +112,7 @@ RCT_EXPORT_METHOD(startSpeech) {
     }
     
     recognitionRequest.shouldReportPartialResults = YES;
+    
     recognitionTask = [speechRecognizer recognitionTaskWithRequest:recognitionRequest resultHandler:^(SFSpeechRecognitionResult * _Nullable result, NSError * _Nullable error) {
         BOOL isFinal = NO;
         
@@ -115,10 +121,9 @@ RCT_EXPORT_METHOD(startSpeech) {
         }
         
         if (result) {
+            
             // Whatever you say in the microphone after pressing the button should be being logged
             // in the console.
-            [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
-            
             NSLog(@"RESULT:%@",result.bestTranscription.formattedString);
             isFinal = !result.isFinal;
             NSString *spokenText = [result.bestTranscription.formattedString lowercaseString];
@@ -146,10 +151,13 @@ RCT_EXPORT_METHOD(startSpeech) {
             } else if ([spokenText containsString:@"stop"]) {
                 spokenText = @"stop";
                 [self stopSpeech:spokenText];
+            } else {
+                NSLog(@"---Not matched word--");
             }
-            
+            [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
         }
         if (error) {
+            NSLog(@"---error---");
             [audioEngine stop];
             [recognitionRequest endAudio];
             [inputNode removeTapOnBus:0];
@@ -165,11 +173,9 @@ RCT_EXPORT_METHOD(startSpeech) {
             [recognitionRequest appendAudioPCMBuffer:buffer];
         }
     }];
-    
     // Starts the audio engine, i.e. it starts listening.
     [audioEngine prepare];
     [audioEngine startAndReturnError:&error];
-    
     if (error != nil) {
         return;
     }
@@ -178,14 +184,19 @@ RCT_EXPORT_METHOD(startSpeech) {
 }
 
 -(void)stopSpeech:(NSString *)txt {
+    NSLog(@"stopSpeech");
     [audioEngine stop];
     [recognitionRequest endAudio];
     recognitionRequest = nil;
+    [recognitionTask cancel];
     recognitionTask = nil;
     if (!isResult) {
         isResult = true;
+        NSLog(@"Send Speech Result");
         [self.bridge.eventDispatcher sendAppEventWithName:@"RNSpeech" body:txt];
+        //        [self sendEventWithName:@"RNSpeech" body:txt];
     }
+    
 }
 
 #pragma mark - SFSpeechRecognizerDelegate Delegate Methods
