@@ -68,8 +68,7 @@ public class VoiceModule extends ReactContextBaseJavaModule {
             String errorMessage = getErrorText(errorCode);
             Log.d(LOG_TAG, "FAILED " + errorMessage);
             if (errorMessage.equals("No match") || errorMessage.equals("No speech input")) {
-                speech.stopListening();
-                speech.startListening(intent);
+                restartSpeech();
             }
         }
 
@@ -114,8 +113,7 @@ public class VoiceModule extends ReactContextBaseJavaModule {
                 mVoicepromise.resolve("stop");
             } else {
 //                mVoicepromise.resolve(matches.get(0));
-                speech.stopListening();
-                speech.startListening(intent);
+                restartSpeech();
             }
         }
 
@@ -124,6 +122,13 @@ public class VoiceModule extends ReactContextBaseJavaModule {
 //            Log.i(LOG_TAG, "onRmsChanged: " + rmsdB);
         }
     };
+
+    @ReactMethod
+    public void enableBeep() {
+        Activity currentActivity = getCurrentActivity();
+        AudioManager amanager=(AudioManager) currentActivity.getSystemService(Context.AUDIO_SERVICE);
+        amanager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+    }
 
     @ReactMethod
     public void startSpeech(String prompt, String locale, final Promise promise) {
@@ -135,6 +140,13 @@ public class VoiceModule extends ReactContextBaseJavaModule {
         }
 
         mVoicepromise = promise;
+        
+        startSpeechWithoutBeep();
+    }
+
+    public void startSpeechWithoutBeep() {
+        final Activity currentActivity = getCurrentActivity();
+
         currentActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -145,10 +157,20 @@ public class VoiceModule extends ReactContextBaseJavaModule {
                 intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,reactContext.getPackageName());
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000);
-                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 2);
+                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+
+                AudioManager amanager=(AudioManager) currentActivity.getSystemService(Context.AUDIO_SERVICE);
+                amanager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                
                 speech.startListening(intent);
             }
         });
+
+    }
+
+    public void restartSpeech() {
+        speech.stopListening();
+        speech.startListening(intent);
     }
 
     public static String getErrorText(int errorCode) {
