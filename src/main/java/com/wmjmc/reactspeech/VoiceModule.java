@@ -125,7 +125,17 @@ public class VoiceModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void enableBeep() {
-        Activity currentActivity = getCurrentActivity();
+        final Activity currentActivity = getCurrentActivity();
+
+        currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (speech != null) {
+                    speech.stopListening();
+                }
+            }
+        });
+        
         AudioManager amanager=(AudioManager) currentActivity.getSystemService(Context.AUDIO_SERVICE);
         amanager.setStreamMute(AudioManager.STREAM_MUSIC, false);
     }
