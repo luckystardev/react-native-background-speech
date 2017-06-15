@@ -37,6 +37,17 @@ RCT_EXPORT_METHOD(startSpeech) {
     [self callSpeech];
 }
 
+RCT_EXPORT_METHOD(enableBeep) {
+    [self setAudioCategoryForPlayback];
+}
+
+-(void)setAudioCategoryForPlayback {
+    NSError *error;
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback error:&error];// withOptions:AVAudioSessionCategoryOptionMixWithOthers
+    [audioSession setActive:YES error:&error];
+}
+
 -(void)callSpeech {
     speechRecognizer = [[SFSpeechRecognizer alloc] initWithLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"]];
     
@@ -83,11 +94,11 @@ RCT_EXPORT_METHOD(startSpeech) {
     // Starts an AVAudio Session
     NSError *error;
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker error:&error];
+    [audioSession setCategory:AVAudioSessionCategoryRecord withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:&error];
     if (error != nil) {
         return;
     }
-    [audioSession setMode:AVAudioSessionModeMeasurement error:&error];
+    // [audioSession setMode:AVAudioSessionModeMeasurement error:&error];
     if (error != nil) {
         return;
     }
@@ -156,8 +167,8 @@ RCT_EXPORT_METHOD(startSpeech) {
                 spokenText = @"nomatch";
                 [self stopSpeech:spokenText];
             }
-            [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
         }
+        
         if (error) {
             NSLog(@"---error---");
             [audioEngine stop];
