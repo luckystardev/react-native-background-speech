@@ -59,7 +59,9 @@ RCT_EXPORT_METHOD(enableBeep) {
     isFirst = false;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        timer = [NSTimer scheduledTimerWithTimeInterval:20.0 target:self selector:@selector(restartSpeech:) userInfo:nil repeats:YES];
+        timer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(restartSpeech) userInfo:nil repeats:YES];
+        [[NSRunLoop currentRunLoop] addTimer:timer forMode:UITrackingRunLoopMode];
+        [[NSRunLoop currentRunLoop] run];
     });
     
     speechRecognizer = [[SFSpeechRecognizer alloc] initWithLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"]];
