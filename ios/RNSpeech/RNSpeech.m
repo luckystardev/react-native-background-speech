@@ -17,6 +17,8 @@
     SFSpeechRecognitionTask *recognitionTask;
     AVAudioEngine *audioEngine;
     bool isResult;
+    NSTimer *timer;
+    bool isFirst;
 }
 
 @property (nonatomic, weak, readwrite) RCTBridge *bridge;
@@ -49,6 +51,17 @@ RCT_EXPORT_METHOD(enableBeep) {
 }
 
 -(void)callSpeech {
+    if ([timer isValid]) {
+        [timer invalidate];
+        timer = nil;
+    }
+    
+    isFirst = false;
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        timer = [NSTimer scheduledTimerWithTimeInterval:20.0 target:self selector:@selector(restartSpeech:) userInfo:nil repeats:YES];
+    });
+    
     speechRecognizer = [[SFSpeechRecognizer alloc] initWithLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"]];
     
     speechRecognizer.delegate = self;
@@ -71,6 +84,20 @@ RCT_EXPORT_METHOD(enableBeep) {
                 break;
         }
     }];
+    
+    [self restartListening];
+}
+
+-(void)restartSpeech:(NSTimer *)theTimer {
+    NSLog(@"----- Restarted Speech -----");
+    if (!isFirst) {
+        isFirst = true;
+    } else {
+        [self restartListening];
+    }
+}
+
+-(void)restartListening {
     if (audioEngine.isRunning) {
         [audioEngine stop];
         [recognitionRequest endAudio];
@@ -203,6 +230,12 @@ RCT_EXPORT_METHOD(enableBeep) {
     recognitionRequest = nil;
     [recognitionTask cancel];
     recognitionTask = nil;
+    
+    if ([timer isValid]) {
+        [timer invalidate];
+        timer = nil;
+    }
+    
     if (!isResult) {
         isResult = true;
         NSLog(@"Send Speech Result");
