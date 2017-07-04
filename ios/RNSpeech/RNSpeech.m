@@ -90,7 +90,7 @@ RCT_EXPORT_METHOD(enableBeep) {
     [self restartListening];
 }
 
--(void)restartSpeech:(NSTimer *)theTimer {
+-(void)restartSpeech{
     NSLog(@"----- Restarted Speech -----");
     if (!isFirst) {
         isFirst = true;
