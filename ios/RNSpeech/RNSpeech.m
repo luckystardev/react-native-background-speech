@@ -92,11 +92,7 @@ RCT_EXPORT_METHOD(enableBeep) {
 
 -(void)restartSpeech{
     NSLog(@"----- Restarted Speech -----");
-    if (!isFirst) {
-        isFirst = true;
-    } else {
-        [self restartListening];
-    }
+    [self restartListening];
 }
 
 -(void)restartListening {
