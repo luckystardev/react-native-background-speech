@@ -166,7 +166,7 @@ RCT_EXPORT_METHOD(enableBeep) {
             if ([spokenText containsString:@"next"] || [spokenText containsString:@"xt"] || [spokenText containsString:@"st"]) {
                 spokenText = @"next";
                 [self stopSpeech:spokenText];
-            } else if ([spokenText containsString:@"back"]) {
+            } else if ([spokenText containsString:@"back"] || [spokenText containsString:@"ack"] || [spokenText containsString:@"ck"] || [spokenText containsString:@"bag"] || [spokenText containsString:@"bat"]) {
                 spokenText = @"back";
                 [self stopSpeech:spokenText];
             } else if ([spokenText containsString:@"yes"]) {
